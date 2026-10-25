@@ -1,9 +1,8 @@
-// api/telegram.js
+// telegram.js (মেইন ফোল্ডারে থাকবে)
 
 let userStates = {};
 
 export default async function handler(req, res) {
-  // CORS হেডার (ওয়েব অ্যাডমিন প্যানেল থেকে রিকোয়েস্ট আসলে)
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
