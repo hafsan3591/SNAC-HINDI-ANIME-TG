@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel - SNAC ANIME</title>
+  <link rel="stylesheet" href="styles.css" />
+  <!-- পাসওয়ার্ড সঠিক না হলে পেজ লোড হবে না -->
+  <style>
+    body { display: none; } /* পাসওয়ার্ড না দিলে হাইড থাকবে */
+  </style>
+</head>
+<body>
+  <header class="navbar">
+    <div class="container nav-inner">
+      <a href="index.html" class="logo"><span class="logo-mark">S</span><span class="logo-text">Admin Panel</span></a>
+      <div class="nav-actions"><a href="index.html" class="btn btn-ghost">← ওয়েবসাইটে ফিরুন</a></div>
+    </div>
+  </header>
+
+  <div class="container" style="padding: 40px 20px;">
+    <div class="admin-form">
+      <h2 style="margin-bottom: 20px; color: var(--primary);">নতুন Anime যোগ করুন</h2>
+      
+      <div class="form-group">
+        <label>Anime Name (Title)</label>
+        <input type="text" id="title" placeholder="e.g. Solo Leveling">
+      </div>
+      <div class="form-group">
+        <label>Year</label>
+        <input type="number" id="year" placeholder="e.g. 2024">
+      </div>
+      <div class="form-group">
+        <label>Genres (কমা দিয়ে)</label>
+        <input type="text" id="genre" placeholder="e.g. Action, Fantasy">
+      </div>
+      <div class="form-group">
+        <label>Poster Image URL</label>
+        <input type="text" id="poster" placeholder="https://...">
+      </div>
+      <div class="form-group">
+        <label>Telegram Post Link</label>
+        <input type="text" id="telegramUrl" placeholder="https://t.me/...">
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea id="desc" rows="3" placeholder="Anime story..."></textarea>
+      </div>
+
+      <button class="btn btn-primary" style="width: 100%;" onclick="addFromWeb()">GitHub-এ সেভ করুন</button>
+    </div>
+  </div>
+
+  <script>
+    // 🔐 এখানে আপনার পাসওয়ার্ড পরিবর্তন করুন
+    const SECRET_PASSWORD = "HM-385-MH"; 
+
+    // পেজ লোড হওয়ার সময় পাসওয়ার্ড চেক
+    window.onload = function() {
+      let userPass = prompt("🔒 Admin Panel এ ঢুকতে পাসওয়ার্ড দিন:");
+      
+      if (userPass === SECRET_PASSWORD) {
+        document.body.style.display = "block"; // পাসওয়ার্ড সঠিক হলে পেজ দেখাবে
+      } else {
+        alert("❌ ভুল পাসওয়ার্ড! আপনি এই পেজে ঢুকতে পারবেন না।");
+        window.location.href = "index.html"; // ভুল হলে হোম পেজে চলে যাবে
+      }
+    };
+
+    // ডেটা সেভ করার ফাংশন
+    async function addFromWeb() {
+      const title = document.getElementById('title').value;
+      if(!title) return alert("Title দিন!");
+
+      const newAnime = {
+        id: title.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+        title: title,
+        titleBn: title,
+        genre: document.getElementById('genre').value.split(',').map(g=>g.trim()),
+        year: parseInt(document.getElementById('year').value) || 2024,
+        language: "Hindi Dubbed",
+        status: "Ongoing",
+        rating: 0, trending: false, latest: true,
+        poster: document.getElementById('poster').value,
+        description: document.getElementById('desc').value,
+        telegramUrl: document.getElementById('telegramUrl').value || "https://t.me/SNAC_hindi_anime"
+      };
+
+      try {
+        const btn = document.querySelector('.btn-primary');
+        btn.innerText = "সেভ হচ্ছে..."; btn.disabled = true;
+
+        const res = await fetch('/api/telegram', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ webAdmin: true, anime: newAnime })
+        });
+        
+        const data = await res.json();
+        if(data.success) {
+          alert("সফলভাবে যোগ হয়েছে! Vercel ১ মিনিটে আপডেট করবে।");
+          location.reload();
+        } else {
+          alert("সমস্যা: " + data.error);
+          btn.innerText = "GitHub-এ সেভ করুন"; btn.disabled = false;
+        }
+      } catch (err) {
+        alert("নেটওয়ার্ক সমস্যা!");
+      }
+    }
+  </script>
+</body>
+</html>
